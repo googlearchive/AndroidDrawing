@@ -1,7 +1,5 @@
 package com.firebase.drawing;
 
-import android.graphics.Point;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,11 +11,11 @@ import java.util.List;
 public class Segment {
 
     private List<Point> points = new ArrayList<Point>();
-    private String color;
+    private int color;
 
     private Segment() {}
 
-    public Segment(String color) {
+    public Segment(int color) {
         this.color = color;
     }
 
@@ -30,7 +28,7 @@ public class Segment {
         return points;
     }
 
-    public String getColor() {
+    public int getColor() {
         return color;
     }
 }
