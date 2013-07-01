@@ -13,6 +13,7 @@ public class Segment {
     private List<Point> points = new ArrayList<Point>();
     private int color;
 
+    // Required default constructor for Firebase serialization / deserialization
     private Segment() {}
 
     public Segment(int color) {

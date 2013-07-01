@@ -36,6 +36,7 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
     @Override
     public void onStart() {
         super.onStart();
+        // Set up a notification to let us know when we're connected or disconnected from the Firebase servers
         connectedListener = ref.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -57,7 +58,7 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
     @Override
     public void onStop() {
         super.onStop();
-
+        // Clean up our listener so we don't have it attached twice.
         ref.getRoot().child(".info/connected").removeEventListener(connectedListener);
         drawingView.cleanup();
     }
