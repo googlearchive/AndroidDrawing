@@ -47,12 +47,21 @@ public class DrawingView extends View {
         this.ref = ref;
 
         listener = ref.addChildEventListener(new ChildEventListener() {
+            /**
+             *
+             * @param dataSnapshot The data we need to construct a new Segment
+             * @param previousChildName Supplied for ordering, but we don't really care about ordering in this app
+             */
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String name = dataSnapshot.getName();
+                // To prevent lag, we draw our own segments as they are created. As a result, we need to check to make
+                // sure this event is a segment drawn by another user before we draw it
                 if (!outstandingSegments.contains(name)) {
+                    // Deserialize the data into our Segment class
                     Segment segment = dataSnapshot.getValue(Segment.class);
                     drawSegment(segment, paintFromColor(segment.getColor()));
+                    // Tell the view to redraw itself
                     invalidate();
                 }
             }
@@ -171,6 +180,10 @@ public class DrawingView extends View {
         Firebase segmentRef = ref.push();
         final String segmentName = segmentRef.getName();
         outstandingSegments.add(segmentName);
+        // Save our segment into Firebase. This will let other clients see the data and add it to their own canvases.
+        // Also make a note of the outstanding segment name so we don't do a duplicate draw in our onChildAdded callback.
+        // We can remove the name from outstandingSegments once the completion listener is triggered, since we will have
+        // received the child added event by then.
         segmentRef.setValue(currentSegment, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError error) {
