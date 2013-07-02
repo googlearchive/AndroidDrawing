@@ -9,4 +9,5 @@ with the [Android SDK](https://developer.android.com/sdk/index.html) as part of 
 
 This example is intended to demonstrate how you can adapt single-user applications to be collaborative with the help of
 [Firebase](https://www.firebase.com). Create your own Firebase and incorporate these techniques into your own application!
+
 Also, check out our [Quickstart guide](https://www.firebase.com/docs/java-quickstart.html) for more information on setting up the Firebase SDK on Android.
