@@ -9,6 +9,8 @@ public class Point {
     int x;
     int y;
 
+    // Required default constructor for Firebase serialization / deserialization
+    @SuppressWarnings("unused")
     private Point() {}
 
     public Point(int x, int y) {

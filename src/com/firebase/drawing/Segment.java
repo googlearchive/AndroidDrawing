@@ -14,6 +14,7 @@ public class Segment {
     private int color;
 
     // Required default constructor for Firebase serialization / deserialization
+    @SuppressWarnings("unused")
     private Segment() {}
 
     public Segment(int color) {

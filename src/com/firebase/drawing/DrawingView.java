@@ -186,7 +186,7 @@ public class DrawingView extends View {
         // received the child added event by then.
         segmentRef.setValue(currentSegment, new Firebase.CompletionListener() {
             @Override
-            public void onComplete(FirebaseError error) {
+            public void onComplete(FirebaseError error, Firebase ref) {
                 outstandingSegments.remove(segmentName);
             }
         });
