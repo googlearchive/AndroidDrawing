@@ -1,44 +1,15 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-        maven { url 'http://repo1.maven.org/maven2' }
+        jcenter()
     }
-
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.4.+'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc2'
     }
 }
 
-apply plugin: 'android'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    compile "com.android.support:support-v4:13.0.0"
-    compile "com.firebase:firebase-client:1.0.1"
-}
-
-android {
-    compileSdkVersion 17
-    buildToolsVersion "17.0.0"
-
-    defaultConfig {
-        minSdkVersion 8
-        targetSdkVersion 8
-    }
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aild.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
-
-        instrumentTest.setRoot('tests')
+allprojects {
+    repositories {
+        jcenter()
     }
 }

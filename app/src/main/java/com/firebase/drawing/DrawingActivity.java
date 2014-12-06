@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.firebase.client.Logger;
 import com.firebase.client.ValueEventListener;
 
@@ -49,7 +50,7 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
             }
 
             @Override
-            public void onCancelled() {
+            public void onCancelled(FirebaseError firebaseError) {
                 // No-op
             }
         });
