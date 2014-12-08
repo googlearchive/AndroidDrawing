@@ -54,7 +54,7 @@ public class DrawingView extends View {
              */
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                String name = dataSnapshot.getName();
+                String name = dataSnapshot.getKey();
                 // To prevent lag, we draw our own segments as they are created. As a result, we need to check to make
                 // sure this event is a segment drawn by another user before we draw it
                 if (!outstandingSegments.contains(name)) {
@@ -82,7 +82,7 @@ public class DrawingView extends View {
             }
 
             @Override
-            public void onCancelled() {
+            public void onCancelled(FirebaseError firebaseError) {
                 // No-op
             }
         });
@@ -178,7 +178,7 @@ public class DrawingView extends View {
         buffer.drawPath(path, paint);
         path.reset();
         Firebase segmentRef = ref.push();
-        final String segmentName = segmentRef.getName();
+        final String segmentName = segmentRef.getKey();
         outstandingSegments.add(segmentName);
         // Save our segment into Firebase. This will let other clients see the data and add it to their own canvases.
         // Also make a note of the outstanding segment name so we don't do a duplicate draw in our onChildAdded callback.
