@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * User: greg
- * Date: 6/26/13
- * Time: 6:44 PM
+ * @author greg
+ * @since 6/26/13
  */
 public class Segment {
 
@@ -15,7 +14,8 @@ public class Segment {
 
     // Required default constructor for Firebase serialization / deserialization
     @SuppressWarnings("unused")
-    private Segment() {}
+    private Segment() {
+    }
 
     public Segment(int color) {
         this.color = color;

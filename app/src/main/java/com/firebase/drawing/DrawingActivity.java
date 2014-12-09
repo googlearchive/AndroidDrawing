@@ -1,15 +1,14 @@
 package com.firebase.drawing;
 
 import android.app.Activity;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.Logger;
 import com.firebase.client.ValueEventListener;
 
 public class DrawingActivity extends Activity implements ColorPickerDialog.OnColorChangedListener {
@@ -19,9 +18,9 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
 
     private static final int COLOR_MENU_ID = Menu.FIRST;
 
-    private DrawingView drawingView;
-    private Firebase ref;
-    private ValueEventListener connectedListener;
+    private DrawingView mDrawingView;
+    private Firebase mFirebaseRef;
+    private ValueEventListener mConnectedListener;
 
     /**
      * Called when the activity is first created.
@@ -29,19 +28,19 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ref = new Firebase(FIREBASE_URL);
-        drawingView = new DrawingView(this, ref);
-        setContentView(drawingView);
+        mFirebaseRef = new Firebase(FIREBASE_URL);
+        mDrawingView = new DrawingView(this, mFirebaseRef);
+        setContentView(mDrawingView);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         // Set up a notification to let us know when we're connected or disconnected from the Firebase servers
-        connectedListener = ref.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
+        mConnectedListener = mFirebaseRef.getRoot().child(".info/connected").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean connected = (Boolean)dataSnapshot.getValue();
+                boolean connected = (Boolean) dataSnapshot.getValue();
                 if (connected) {
                     Toast.makeText(DrawingActivity.this, "Connected to Firebase", Toast.LENGTH_SHORT).show();
                 } else {
@@ -60,8 +59,8 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
     public void onStop() {
         super.onStop();
         // Clean up our listener so we don't have it attached twice.
-        ref.getRoot().child(".info/connected").removeEventListener(connectedListener);
-        drawingView.cleanup();
+        mFirebaseRef.getRoot().child(".info/connected").removeEventListener(mConnectedListener);
+        mDrawingView.cleanup();
     }
 
 
@@ -91,6 +90,6 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
 
     @Override
     public void colorChanged(int newColor) {
-        drawingView.setColor(newColor);
+        mDrawingView.setColor(newColor);
     }
 }
