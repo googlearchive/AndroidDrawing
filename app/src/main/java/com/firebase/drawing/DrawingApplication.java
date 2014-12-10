@@ -5,7 +5,10 @@ import android.app.Application;
 import com.firebase.client.Firebase;
 
 /**
- * Created by mimming on 12/5/14.
+ * @author mimming
+ * @since 12/5/14.
+ *
+ * Initialize Firebase with the application context. This must happen before the client is used.
  */
 public class DrawingApplication extends Application {
     @Override

@@ -1,9 +1,8 @@
 package com.firebase.drawing;
 
 /**
- * User: greg
- * Date: 6/26/13
- * Time: 9:11 PM
+ * @author greg
+ * @since 6/26/13
  */
 public class Point {
     int x;
@@ -11,7 +10,8 @@ public class Point {
 
     // Required default constructor for Firebase serialization / deserialization
     @SuppressWarnings("unused")
-    private Point() {}
+    private Point() {
+    }
 
     public Point(int x, int y) {
         this.x = x;
