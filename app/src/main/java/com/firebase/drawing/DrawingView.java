@@ -5,13 +5,16 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Logger;
 
 import java.util.HashSet;
 import java.util.List;
@@ -186,6 +189,10 @@ public class DrawingView extends View {
         segmentRef.setValue(mCurrentSegment, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError error, Firebase firebaseRef) {
+                if (error != null) {
+                    Log.e("AndroidDrawing", error.toString());
+                    throw error.toException();
+                }
                 mOutstandingSegments.remove(segmentName);
             }
         });

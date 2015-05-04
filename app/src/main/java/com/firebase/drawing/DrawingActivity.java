@@ -1,7 +1,9 @@
 package com.firebase.drawing;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -13,7 +15,6 @@ import com.firebase.client.ValueEventListener;
 
 public class DrawingActivity extends Activity implements ColorPickerDialog.OnColorChangedListener {
 
-    // TODO: change this to your own Firebase URL
     private static final String FIREBASE_URL = "https://android-drawing.firebaseIO-demo.com";
 
     private static final int COLOR_MENU_ID = Menu.FIRST;
@@ -28,7 +29,11 @@ public class DrawingActivity extends Activity implements ColorPickerDialog.OnCol
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFirebaseRef = new Firebase(FIREBASE_URL);
+        Intent intent = getIntent();
+        String url = intent.getStringExtra("FIREBASE_URL");
+        if (url == null) url = FIREBASE_URL; // for backwards compatibility, use the hard-coded URL
+        Log.i("AndroidDrawing", "Adding DrawingView on "+url);
+        mFirebaseRef = new Firebase(url);
         mDrawingView = new DrawingView(this, mFirebaseRef);
         setContentView(mDrawingView);
     }

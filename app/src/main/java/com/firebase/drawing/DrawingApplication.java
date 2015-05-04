@@ -3,6 +3,7 @@ package com.firebase.drawing;
 import android.app.Application;
 
 import com.firebase.client.Firebase;
+import com.firebase.client.Logger;
 
 /**
  * @author mimming
@@ -15,5 +16,6 @@ public class DrawingApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Firebase.setAndroidContext(this);
+        Firebase.getDefaultConfig().setLogLevel(Logger.Level.DEBUG);
     }
 }
