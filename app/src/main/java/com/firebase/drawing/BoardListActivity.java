@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,12 +17,9 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.firebase.client.core.SyncTree;
-import com.firebase.client.core.view.Event;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class BoardListActivity extends ActionBarActivity {
@@ -100,7 +95,8 @@ public class BoardListActivity extends ActionBarActivity {
         Log.i("AndroidDrawing", "Opening board "+key);
         Toast.makeText(BoardListActivity.this, "Opening board: "+key, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, DrawingActivity.class);
-        intent.putExtra("FIREBASE_URL", FIREBASE_URL+"boardsegments/"+key);
+        intent.putExtra("FIREBASE_URL", FIREBASE_URL);
+        intent.putExtra("BOARD_ID", key);
         startActivity(intent);
     }
 

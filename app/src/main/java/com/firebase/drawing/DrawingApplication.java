@@ -16,6 +16,6 @@ public class DrawingApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Firebase.setAndroidContext(this);
-        Firebase.getDefaultConfig().setLogLevel(Logger.Level.DEBUG);
+        //Firebase.getDefaultConfig().setLogLevel(Logger.Level.DEBUG);
     }
 }
