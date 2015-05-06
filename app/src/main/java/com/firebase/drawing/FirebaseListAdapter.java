@@ -183,7 +183,14 @@ public abstract class FirebaseListAdapter<T> extends BaseAdapter {
      * @return the key of the model at index i
      */
     public String getModelKey(int i) {
-        return (String) mModelKeys.keySet().toArray()[i];
+        //Log.i("AndroidDrawing", "Getting item "+i+" out of "+mModelKeys+" -> "+mModelKeys.keySet().toArray()[i]);
+        Object model = getItem(i);
+        for (Map.Entry<String,T> entry: mModelKeys.entrySet()) {
+            if (entry.getValue() == model) {
+                return entry.getKey();
+            }
+        }
+        throw new IllegalArgumentException("model not found");
     }
 
     @Override

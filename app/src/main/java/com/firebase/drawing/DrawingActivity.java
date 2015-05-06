@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DrawingActivity extends ActionBarActivity implements ColorPickerDialog.OnColorChangedListener {
+    public static final int THUMBNAIL_SIZE = 256;
 
     private static final int COLOR_MENU_ID = Menu.FIRST;
     private static final int SNAPSHOT_MENU_ID = COLOR_MENU_ID+1;
@@ -122,10 +125,13 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
             new ColorPickerDialog(this, this, 0xFFFF0000).show();
             return true;
         } else if (item.getItemId() == SNAPSHOT_MENU_ID) {
-            final int THUMBNAIL_SIZE = 128;
             final float scale = Math.min(1.0f * THUMBNAIL_SIZE / mBoardWidth, 1.0f * THUMBNAIL_SIZE / mBoardHeight);
             final Bitmap b = Bitmap.createBitmap(Math.round(mBoardWidth * scale), Math.round(mBoardHeight * scale), Bitmap.Config.ARGB_8888);
             final Canvas buffer = new Canvas(b);
+
+            Paint p = DrawingView.paintFromColor(Color.WHITE);
+            p.setStyle(Paint.Style.FILL_AND_STROKE);
+            buffer.drawRect(0, 0, b.getWidth(), b.getHeight(), p);
 
             mFirebaseRef.child("boardsegments").child(mBoardId).addValueEventListener(new ValueEventListener() {
                 @Override
