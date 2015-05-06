@@ -45,7 +45,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         Intent intent = getIntent();
         final String url = intent.getStringExtra("FIREBASE_URL");
         final String boardId = intent.getStringExtra("BOARD_ID");
-        Log.i("AndroidDrawing", "Adding DrawingView on "+url);
+        Log.i("AndroidDrawing", "Adding DrawingView on "+url+" for boardId "+boardId);
         mFirebaseRef = new Firebase(url);
         mBoardId = boardId;
         //((TextView)this.findViewById(R.id.text_field)).setText("Loading board...");
