@@ -123,12 +123,8 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
             return true;
         } else if (item.getItemId() == SNAPSHOT_MENU_ID) {
             final int THUMBNAIL_SIZE = 128;
-            final float scale = Math.min(
-                    1.0f * DrawingView.PIXEL_SIZE * THUMBNAIL_SIZE / mBoardWidth,
-                    1.0f * DrawingView.PIXEL_SIZE * THUMBNAIL_SIZE / mBoardHeight
-            );
-            Log.i("AndroidDrawing", "Thumbnail scale = "+scale);
-            final Bitmap b = Bitmap.createBitmap(Math.round(mBoardWidth * scale / DrawingView.PIXEL_SIZE), Math.round(mBoardHeight * scale / DrawingView.PIXEL_SIZE), Bitmap.Config.ARGB_8888);
+            final float scale = Math.min(1.0f * THUMBNAIL_SIZE / mBoardWidth, 1.0f * THUMBNAIL_SIZE / mBoardHeight);
+            final Bitmap b = Bitmap.createBitmap(Math.round(mBoardWidth * scale), Math.round(mBoardHeight * scale), Bitmap.Config.ARGB_8888);
             final Canvas buffer = new Canvas(b);
 
             mFirebaseRef.child("boardsegments").child(mBoardId).addValueEventListener(new ValueEventListener() {

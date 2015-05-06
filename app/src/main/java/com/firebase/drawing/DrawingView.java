@@ -165,6 +165,7 @@ public class DrawingView extends View {
 
     public static Path getPathForPoints(List<Point> points, double scale) {
         Path path = new Path();
+        scale = scale * PIXEL_SIZE;
         Point current = points.get(0);
         path.moveTo(Math.round(scale * current.x), Math.round(scale * current.y));
         Point next = null;
@@ -184,7 +185,7 @@ public class DrawingView extends View {
 
 
     private void drawSegment(Segment segment, Paint paint) {
-        mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale * PIXEL_SIZE), paint);
+        mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
     }
 
     private void onTouchStart(float x, float y) {
