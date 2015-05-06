@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class BoardListActivity extends ActionBarActivity {
     private static String FIREBASE_URL = "https://doodleboard.firebaseio.com/";
 
     private Firebase mRef;
-    private FirebaseListAdapter<Object> mBoardListAdapter;
+    private FirebaseListAdapter<HashMap> mBoardListAdapter;
     private ValueEventListener mConnectedListener;
 
     @Override
@@ -60,11 +62,23 @@ public class BoardListActivity extends ActionBarActivity {
         });
 
         final ListView boardList = (ListView) this.findViewById(R.id.BoardList);
-        mBoardListAdapter = new FirebaseListAdapter<Object>(mRef.child("boardmetas"), Object.class, R.layout.board_in_list, this) {
+        mBoardListAdapter = new FirebaseListAdapter<HashMap>(mRef.child("boardmetas"), HashMap.class, R.layout.board_in_list, this) {
             @Override
-            protected void populateView(View v, Object model) {
-                HashMap<String, Object> values = (HashMap<String, Object>) model;
-                ((TextView)v.findViewById(R.id.board_title)).setText(values.get("createdAt").toString());
+            protected void populateView(View v, HashMap model) {
+                String key = BoardListActivity.this.mBoardListAdapter.getModelKey(model);
+                ((TextView)v.findViewById(R.id.board_title)).setText(key);
+                ImageView thumbnailView = (ImageView) v.findViewById(R.id.board_thumbnail);
+                if (model.get("thumbnail") != null){
+                    try {
+                        thumbnailView.setImageBitmap(DrawingActivity.decodeFromBase64(model.get("thumbnail").toString()));
+                        thumbnailView.setVisibility(View.VISIBLE);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    thumbnailView.setVisibility(View.INVISIBLE);
+                }
             }
         };
         boardList.setAdapter(mBoardListAdapter);
