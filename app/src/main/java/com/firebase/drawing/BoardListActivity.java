@@ -136,25 +136,27 @@ public class BoardListActivity extends ActionBarActivity {
         }
 
         if (id == R.id.action_new_board) {
-            // TODO: create a new board
-            Firebase newBoardRef = mRef.child("boardmetas").push();
+            // create a new board
+            final Firebase newBoardRef = mRef.child("boardmetas").push();
             Map<String, Object> newBoardValues = new HashMap<>();
             newBoardValues.put("createdAt", new Date().getTime());
             android.graphics.Point size = new android.graphics.Point();
             getWindowManager().getDefaultDisplay().getSize(size);
             newBoardValues.put("width", size.x);
             newBoardValues.put("height", size.y);
-            Log.i("AndroidDrawing", newBoardRef.toString());
-            Log.i("AndroidDrawing", newBoardValues.toString());
             newBoardRef.setValue(newBoardValues, new Firebase.CompletionListener() {
                 @Override
                 public void onComplete(FirebaseError firebaseError, Firebase ref) {
                     if (firebaseError != null) {
                         Log.e("AndroidDrawing", firebaseError.toString());
+                        throw firebaseError.toException();
+                    }
+                    else {
+                        // once the board is created, start a DrawingActivity on it
+                        openBoard(newBoardRef.getKey());
                     }
                 }
             });
-            // TODO: once the board is created, start a DrawingActivity on it
 
         }
 
