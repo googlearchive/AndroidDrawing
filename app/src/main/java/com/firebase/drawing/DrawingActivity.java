@@ -28,8 +28,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
     public static final int THUMBNAIL_SIZE = 256;
 
     private static final int COLOR_MENU_ID = Menu.FIRST;
-    private static final int SNAPSHOT_MENU_ID = COLOR_MENU_ID+1;
-    private static final int CLEAR_MENU_ID = SNAPSHOT_MENU_ID + 1;
+    private static final int CLEAR_MENU_ID = COLOR_MENU_ID + 1;
     private static final int PIN_MENU_ID = CLEAR_MENU_ID + 1;
 
     private DrawingView mDrawingView;
@@ -102,6 +101,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         // Clean up our listener so we don't have it attached twice.
         mFirebaseRef.getRoot().child(".info/connected").removeEventListener(mConnectedListener);
         mDrawingView.cleanup();
+        this.updateThumbnail(mBoardWidth, mBoardHeight, mSegmentsRef, mMetadataRef);
     }
 
 
@@ -111,7 +111,6 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         // getMenuInflater().inflate(R.menu.menu_drawing, menu);
 
         menu.add(0, COLOR_MENU_ID, 0, "Color").setShortcut('3', 'c').setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        menu.add(0, SNAPSHOT_MENU_ID, 1, "Snapshot").setShortcut('4', 's');
         menu.add(0, CLEAR_MENU_ID, 2, "Clear").setShortcut('5', 'x');
         menu.add(0, PIN_MENU_ID, 3, "Pin").setShortcut('6', 'p').setIcon(android.R.drawable.ic_lock_lock);
 
@@ -129,50 +128,17 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         if (item.getItemId() == COLOR_MENU_ID) {
             new ColorPickerDialog(this, this, 0xFFFF0000).show();
             return true;
-        } else if (item.getItemId() == SNAPSHOT_MENU_ID) {
-            final float scale = Math.min(1.0f * THUMBNAIL_SIZE / mBoardWidth, 1.0f * THUMBNAIL_SIZE / mBoardHeight);
-            final Bitmap b = Bitmap.createBitmap(Math.round(mBoardWidth * scale), Math.round(mBoardHeight * scale), Bitmap.Config.ARGB_8888);
-            final Canvas buffer = new Canvas(b);
-
-            buffer.drawRect(0, 0, b.getWidth(), b.getHeight(), DrawingView.paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
-            Log.i("AndroidDrawing", "Generating thumbnail of "+b.getWidth()+"x"+b.getHeight());
-
-            mSegmentsRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot segmentSnapshot : dataSnapshot.getChildren()) {
-                        Segment segment = segmentSnapshot.getValue(Segment.class);
-                        buffer.drawPath(
-                                DrawingView.getPathForPoints(segment.getPoints(), scale),
-                                DrawingView.paintFromColor(segment.getColor())
-                        );
-                    }
-                    String encoded = encodeToBase64(b);
-                    mMetadataRef.child("thumbnail").setValue(encoded, new Firebase.CompletionListener() {
-                        @Override
-                        public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                            if (firebaseError != null) {
-                                throw firebaseError.toException();
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-
-                }
-            });
-
-            return true;
         } else if (item.getItemId() == CLEAR_MENU_ID) {
+            mDrawingView.cleanup();
             mSegmentsRef.removeValue(new Firebase.CompletionListener() {
                 @Override
                 public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                     if (firebaseError != null) {
                         throw firebaseError.toException();
                     }
-                    mDrawingView.clear();
+                    mDrawingView = new DrawingView(DrawingActivity.this, mFirebaseRef.child("boardsegments").child(mBoardId), mBoardWidth, mBoardHeight);
+                    setContentView(mDrawingView);
+                    //mDrawingView.clear();
                 }
             });
 
@@ -186,6 +152,43 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
             return super.onOptionsItemSelected(item);
         }
     }
+
+    public static void updateThumbnail(int boardWidth, int boardHeight, Firebase segmentsRef, final Firebase metadataRef) {
+        final float scale = Math.min(1.0f * THUMBNAIL_SIZE / boardWidth, 1.0f * THUMBNAIL_SIZE / boardHeight);
+        final Bitmap b = Bitmap.createBitmap(Math.round(boardWidth * scale), Math.round(boardHeight * scale), Bitmap.Config.ARGB_8888);
+        final Canvas buffer = new Canvas(b);
+
+        buffer.drawRect(0, 0, b.getWidth(), b.getHeight(), DrawingView.paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
+        Log.i("AndroidDrawing", "Generating thumbnail of " + b.getWidth() + "x" + b.getHeight());
+
+        segmentsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot segmentSnapshot : dataSnapshot.getChildren()) {
+                    Segment segment = segmentSnapshot.getValue(Segment.class);
+                    buffer.drawPath(
+                            DrawingView.getPathForPoints(segment.getPoints(), scale),
+                            DrawingView.paintFromColor(segment.getColor())
+                    );
+                }
+                String encoded = encodeToBase64(b);
+                metadataRef.child("thumbnail").setValue(encoded, new Firebase.CompletionListener() {
+                    @Override
+                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                        if (firebaseError != null) {
+                            throw firebaseError.toException();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
     public static String encodeToBase64(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, baos);

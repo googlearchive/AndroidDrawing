@@ -140,6 +140,7 @@ public class DrawingView extends View {
 
         mBitmap = Bitmap.createBitmap(Math.round(mCanvasWidth * mScale), Math.round(mCanvasHeight * mScale), Bitmap.Config.ARGB_8888);
         mBuffer = new Canvas(mBitmap);
+        Log.i("AndroidDrawing", "onSizeChanged: created bitmap/buffer of "+mBitmap.getWidth()+"x"+mBitmap.getHeight());
     }
 
     @Override
@@ -191,7 +192,7 @@ public class DrawingView extends View {
             mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
         }
         else {
-            Log.e("AndroidDrawing", "Drawing segment without a buffer, that won't work");
+            Log.w("AndroidDrawing", "Drawing segment without a buffer, that won't work");
         }
     }
 
