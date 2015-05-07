@@ -20,7 +20,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.firebase:firebase-client-android:2.0.3+'
-    compile "com.android.support:appcompat-v7:21.0.+"
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.firebase:firebase-client-android:2.2.5-SNAPSHOT'
+    //compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
+    //compile 'com.firebase:tubesock:0.0.11'
+    compile 'com.android.support:appcompat-v7:21.0.+'
 }
