@@ -17,7 +17,9 @@ import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
+import com.firebase.client.core.ServerValues;
 
 import java.io.IOException;
 import java.util.Date;
@@ -139,7 +141,7 @@ public class BoardListActivity extends ActionBarActivity {
             // create a new board
             final Firebase newBoardRef = mRef.child("boardmetas").push();
             Map<String, Object> newBoardValues = new HashMap<>();
-            newBoardValues.put("createdAt", new Date().getTime());
+            newBoardValues.put("createdAt", ServerValue.TIMESTAMP);
             android.graphics.Point size = new android.graphics.Point();
             getWindowManager().getDefaultDisplay().getSize(size);
             newBoardValues.put("width", size.x);
