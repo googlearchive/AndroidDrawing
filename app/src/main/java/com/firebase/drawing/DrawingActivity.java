@@ -161,7 +161,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         buffer.drawRect(0, 0, b.getWidth(), b.getHeight(), DrawingView.paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
         Log.i("AndroidDrawing", "Generating thumbnail of " + b.getWidth() + "x" + b.getHeight());
 
-        segmentsRef.addValueEventListener(new ValueEventListener() {
+        segmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot segmentSnapshot : dataSnapshot.getChildren()) {
