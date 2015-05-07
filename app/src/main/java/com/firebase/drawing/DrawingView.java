@@ -145,9 +145,7 @@ public class DrawingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawColor(Color.DKGRAY);
-        Paint p = paintFromColor(Color.WHITE);
-        p.setStyle(Paint.Style.FILL_AND_STROKE);
-        canvas.drawRect(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), p);
+        canvas.drawRect(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
 
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
@@ -155,11 +153,15 @@ public class DrawingView extends View {
     }
 
     public static Paint paintFromColor(int color) {
+        return paintFromColor(color, Paint.Style.STROKE);
+    }
+
+    public static Paint paintFromColor(int color, Paint.Style style) {
         Paint p = new Paint();
         p.setAntiAlias(true);
         p.setDither(true);
         p.setColor(color);
-        p.setStyle(Paint.Style.STROKE);
+        p.setStyle(style);
         return p;
     }
 
@@ -185,7 +187,12 @@ public class DrawingView extends View {
 
 
     private void drawSegment(Segment segment, Paint paint) {
-        mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
+        if (mBuffer != null) {
+            mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
+        }
+        else {
+            Log.e("AndroidDrawing", "Drawing segment without a buffer, that won't work");
+        }
     }
 
     private void onTouchStart(float x, float y) {
