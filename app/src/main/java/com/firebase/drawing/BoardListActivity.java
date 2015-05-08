@@ -31,6 +31,7 @@ public class BoardListActivity extends ActionBarActivity {
     private static String FIREBASE_URL = "https://doodleboard.firebaseio.com/";
 
     private Firebase mRef;
+    private Firebase mBoardsRef;
     private FirebaseListAdapter<HashMap> mBoardListAdapter;
     private ValueEventListener mConnectedListener;
 
@@ -38,6 +39,8 @@ public class BoardListActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mRef = new Firebase(FIREBASE_URL);
+        mBoardsRef = mRef.child("boardmetas");
+        mBoardsRef.pin();
         setContentView(R.layout.activity_board_list);
     }
 
@@ -64,7 +67,7 @@ public class BoardListActivity extends ActionBarActivity {
         });
 
         final ListView boardList = (ListView) this.findViewById(R.id.BoardList);
-        mBoardListAdapter = new FirebaseListAdapter<HashMap>(mRef.child("boardmetas"), HashMap.class, R.layout.board_in_list, this) {
+        mBoardListAdapter = new FirebaseListAdapter<HashMap>(mBoardsRef, HashMap.class, R.layout.board_in_list, this) {
             @Override
             protected void populateView(View v, HashMap model) {
                 String key = BoardListActivity.this.mBoardListAdapter.getModelKey(model);
@@ -139,7 +142,7 @@ public class BoardListActivity extends ActionBarActivity {
 
         if (id == R.id.action_new_board) {
             // create a new board
-            final Firebase newBoardRef = mRef.child("boardmetas").push();
+            final Firebase newBoardRef = mBoardsRef.push();
             Map<String, Object> newBoardValues = new HashMap<>();
             newBoardValues.put("createdAt", ServerValue.TIMESTAMP);
             android.graphics.Point size = new android.graphics.Point();

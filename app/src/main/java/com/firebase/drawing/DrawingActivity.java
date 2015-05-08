@@ -112,7 +112,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
 
         menu.add(0, COLOR_MENU_ID, 0, "Color").setShortcut('3', 'c').setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, CLEAR_MENU_ID, 2, "Clear").setShortcut('5', 'x');
-        menu.add(0, PIN_MENU_ID, 3, "Pin").setShortcut('6', 'p').setIcon(android.R.drawable.ic_lock_lock);
+        menu.add(0, PIN_MENU_ID, 3, "Keep in sync").setShortcut('6', 's').setIcon(android.R.drawable.ic_lock_lock);
 
         return true;
     }
@@ -146,7 +146,6 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         } else if (item.getItemId() == PIN_MENU_ID) {
             Log.i("AndroidDrawing", "Pinning board "+mBoardId);
             mSegmentsRef.pin();
-            mMetadataRef.pin();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
