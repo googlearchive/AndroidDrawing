@@ -107,6 +107,7 @@ public class BoardListActivity extends ActionBarActivity {
         super.onStop();
         // Clean up our listener so we don't have it attached twice.
         mRef.getRoot().child(".info/connected").removeEventListener(mConnectedListener);
+        mBoardListAdapter.cleanup();
 
     }
 
