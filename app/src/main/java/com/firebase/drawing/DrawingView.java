@@ -24,10 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author greg
- * @since 6/26/13
- */
 public class DrawingView extends View {
 
     public static final int PIXEL_SIZE = 8;

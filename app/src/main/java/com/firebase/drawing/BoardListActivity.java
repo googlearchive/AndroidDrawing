@@ -40,7 +40,7 @@ public class BoardListActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         mRef = new Firebase(FIREBASE_URL);
         mBoardsRef = mRef.child("boardmetas");
-        mBoardsRef.pin();
+        mBoardsRef.pin(); // keep the board list in sync
         setContentView(R.layout.activity_board_list);
     }
 
