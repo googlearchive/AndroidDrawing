@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -70,9 +71,18 @@ public class BoardListActivity extends ActionBarActivity {
         mBoardListAdapter = new FirebaseListAdapter<HashMap>(mBoardsRef, HashMap.class, R.layout.board_in_list, this) {
             @Override
             protected void populateView(View v, HashMap model) {
-                String key = BoardListActivity.this.mBoardListAdapter.getModelKey(model);
+                final String key = BoardListActivity.this.mBoardListAdapter.getModelKey(model);
                 ((TextView)v.findViewById(R.id.board_title)).setText(key);
                 ImageView thumbnailView = (ImageView) v.findViewById(R.id.board_thumbnail);
+                CheckBox checkbox = (CheckBox) v.findViewById(R.id.keepSynced);
+                //checkbox.setEnabled(false);
+                checkbox.setChecked(PinnedBoardManager.isPinned(key));
+                checkbox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PinnedBoardManager.toggle(key);
+                    }
+                });
                 if (model.get("thumbnail") != null){
                     try {
                         thumbnailView.setImageBitmap(DrawingActivity.decodeFromBase64(model.get("thumbnail").toString()));

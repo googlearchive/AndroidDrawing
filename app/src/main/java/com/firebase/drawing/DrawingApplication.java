@@ -18,5 +18,6 @@ public class DrawingApplication extends Application {
         Firebase.setAndroidContext(this);
         Firebase.getDefaultConfig().enablePersistence();
         //Firebase.getDefaultConfig().setLogLevel(Logger.Level.DEBUG);
+        PinnedBoardManager.setContext(this);
     }
 }
