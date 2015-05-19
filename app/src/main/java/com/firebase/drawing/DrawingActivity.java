@@ -145,10 +145,8 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
 
             return true;
         } else if (item.getItemId() == PIN_MENU_ID) {
-            Log.i("AndroidDrawing", "Pinning board " + mBoardId);
-            PinnedBoardManager.toggle(mBoardId);
+            PinnedBoardManager.toggle(mFirebaseRef.child("boardsegments"), mBoardId);
             item.setChecked(PinnedBoardManager.isPinned(mBoardId));
-            mSegmentsRef.pin();
             return true;
         } else {
             return super.onOptionsItemSelected(item);

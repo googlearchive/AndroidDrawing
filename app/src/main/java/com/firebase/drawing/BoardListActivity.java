@@ -33,6 +33,7 @@ public class BoardListActivity extends ActionBarActivity {
 
     private Firebase mRef;
     private Firebase mBoardsRef;
+    private Firebase mSegmentsRef;
     private FirebaseListAdapter<HashMap> mBoardListAdapter;
     private ValueEventListener mConnectedListener;
 
@@ -42,6 +43,8 @@ public class BoardListActivity extends ActionBarActivity {
         mRef = new Firebase(FIREBASE_URL);
         mBoardsRef = mRef.child("boardmetas");
         mBoardsRef.pin(); // keep the board list in sync
+        mSegmentsRef = mRef.child("boardsegments");
+        PinnedBoardManager.restorePinnedBoards(mSegmentsRef);
         setContentView(R.layout.activity_board_list);
     }
 
@@ -75,12 +78,11 @@ public class BoardListActivity extends ActionBarActivity {
                 ((TextView)v.findViewById(R.id.board_title)).setText(key);
                 ImageView thumbnailView = (ImageView) v.findViewById(R.id.board_thumbnail);
                 CheckBox checkbox = (CheckBox) v.findViewById(R.id.keepSynced);
-                //checkbox.setEnabled(false);
                 checkbox.setChecked(PinnedBoardManager.isPinned(key));
                 checkbox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PinnedBoardManager.toggle(key);
+                        PinnedBoardManager.toggle(mSegmentsRef, key);
                     }
                 });
                 if (model.get("thumbnail") != null){
