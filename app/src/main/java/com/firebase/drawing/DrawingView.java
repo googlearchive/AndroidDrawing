@@ -187,9 +187,6 @@ public class DrawingView extends View {
         if (mBuffer != null) {
             mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
         }
-        else {
-            Log.w("AndroidDrawing", "Drawing segment without a buffer, that won't work");
-        }
     }
 
     private void onTouchStart(float x, float y) {
