@@ -20,15 +20,14 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ServerValue;
 import com.firebase.client.ValueEventListener;
-import com.firebase.client.core.ServerValues;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BoardListActivity extends ActionBarActivity {
 
+    public static final String TAG = "AndroidDrawing";
     private static String FIREBASE_URL = "https://doodleboard.firebaseio.com/";
 
     private Firebase mRef;
@@ -44,7 +43,7 @@ public class BoardListActivity extends ActionBarActivity {
         mBoardsRef = mRef.child("boardmetas");
         mBoardsRef.pin(); // keep the board list in sync
         mSegmentsRef = mRef.child("boardsegments");
-        PinnedBoardManager.restorePinnedBoards(mSegmentsRef);
+        SyncedBoardManager.restoreSyncedBoards(mSegmentsRef);
         setContentView(R.layout.activity_board_list);
     }
 
@@ -76,15 +75,19 @@ public class BoardListActivity extends ActionBarActivity {
             protected void populateView(View v, HashMap model) {
                 final String key = BoardListActivity.this.mBoardListAdapter.getModelKey(model);
                 ((TextView)v.findViewById(R.id.board_title)).setText(key);
-                ImageView thumbnailView = (ImageView) v.findViewById(R.id.board_thumbnail);
+
+                // show if the board is synced and listen for clicks to toggle that state
                 CheckBox checkbox = (CheckBox) v.findViewById(R.id.keepSynced);
-                checkbox.setChecked(PinnedBoardManager.isPinned(key));
+                checkbox.setChecked(SyncedBoardManager.isSynced(key));
                 checkbox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PinnedBoardManager.toggle(mSegmentsRef, key);
+                        SyncedBoardManager.toggle(mSegmentsRef, key);
                     }
                 });
+
+                // display the board's thumbnail if it is available
+                ImageView thumbnailView = (ImageView) v.findViewById(R.id.board_thumbnail);
                 if (model.get("thumbnail") != null){
                     try {
                         thumbnailView.setImageBitmap(DrawingActivity.decodeFromBase64(model.get("thumbnail").toString()));
@@ -123,8 +126,31 @@ public class BoardListActivity extends ActionBarActivity {
 
     }
 
+    private void createBoard() {
+        // create a new board
+        final Firebase newBoardRef = mBoardsRef.push();
+        Map<String, Object> newBoardValues = new HashMap<>();
+        newBoardValues.put("createdAt", ServerValue.TIMESTAMP);
+        android.graphics.Point size = new android.graphics.Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        newBoardValues.put("width", size.x);
+        newBoardValues.put("height", size.y);
+        newBoardRef.setValue(newBoardValues, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase ref) {
+                if (firebaseError != null) {
+                    Log.e(TAG, firebaseError.toString());
+                    throw firebaseError.toException();
+                } else {
+                    // once the board is created, start a DrawingActivity on it
+                    openBoard(newBoardRef.getKey());
+                }
+            }
+        });
+    }
+
     private void openBoard(String key) {
-        Log.i("AndroidDrawing", "Opening board "+key);
+        Log.i(TAG, "Opening board "+key);
         Toast.makeText(BoardListActivity.this, "Opening board: "+key, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, DrawingActivity.class);
         intent.putExtra("FIREBASE_URL", FIREBASE_URL);
@@ -146,7 +172,7 @@ public class BoardListActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        Log.i("AndroidDrawing", "Selected item " + id);
+        Log.i(TAG, "Selected item " + id);
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
@@ -154,31 +180,11 @@ public class BoardListActivity extends ActionBarActivity {
         }
 
         if (id == R.id.action_new_board) {
-            // create a new board
-            final Firebase newBoardRef = mBoardsRef.push();
-            Map<String, Object> newBoardValues = new HashMap<>();
-            newBoardValues.put("createdAt", ServerValue.TIMESTAMP);
-            android.graphics.Point size = new android.graphics.Point();
-            getWindowManager().getDefaultDisplay().getSize(size);
-            newBoardValues.put("width", size.x);
-            newBoardValues.put("height", size.y);
-            newBoardRef.setValue(newBoardValues, new Firebase.CompletionListener() {
-                @Override
-                public void onComplete(FirebaseError firebaseError, Firebase ref) {
-                    if (firebaseError != null) {
-                        Log.e("AndroidDrawing", firebaseError.toString());
-                        throw firebaseError.toException();
-                    }
-                    else {
-                        // once the board is created, start a DrawingActivity on it
-                        openBoard(newBoardRef.getKey());
-                    }
-                }
-            });
-
+            createBoard();
         }
 
 
         return super.onOptionsItemSelected(item);
     }
+
 }

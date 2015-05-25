@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +20,6 @@ import com.firebase.client.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 public class DrawingActivity extends ActionBarActivity implements ColorPickerDialog.OnColorChangedListener {
@@ -30,6 +28,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
     private static final int COLOR_MENU_ID = Menu.FIRST;
     private static final int CLEAR_MENU_ID = COLOR_MENU_ID + 1;
     private static final int PIN_MENU_ID = CLEAR_MENU_ID + 1;
+    public static final String TAG = "AndroidDrawing";
 
     private DrawingView mDrawingView;
     private Firebase mFirebaseRef; // Firebase base URL
@@ -49,12 +48,11 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         Intent intent = getIntent();
         final String url = intent.getStringExtra("FIREBASE_URL");
         final String boardId = intent.getStringExtra("BOARD_ID");
-        Log.i("AndroidDrawing", "Adding DrawingView on "+url+" for boardId "+boardId);
+        Log.i(TAG, "Adding DrawingView on "+url+" for boardId "+boardId);
         mFirebaseRef = new Firebase(url);
         mBoardId = boardId;
         mMetadataRef = mFirebaseRef.child("boardmetas").child(boardId);
         mSegmentsRef = mFirebaseRef.child("boardsegments").child(mBoardId);
-        //((TextView)this.findViewById(R.id.text_field)).setText("Loading board...");
         mMetadataRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -113,7 +111,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         menu.add(0, COLOR_MENU_ID, 0, "Color").setShortcut('3', 'c').setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, CLEAR_MENU_ID, 2, "Clear").setShortcut('5', 'x');
         menu.add(0, PIN_MENU_ID, 3, "Keep in sync").setShortcut('6', 's').setIcon(android.R.drawable.ic_lock_lock)
-                .setCheckable(true).setChecked(PinnedBoardManager.isPinned(mBoardId));
+                .setCheckable(true).setChecked(SyncedBoardManager.isSynced(mBoardId));
 
         return true;
     }
@@ -145,8 +143,8 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
 
             return true;
         } else if (item.getItemId() == PIN_MENU_ID) {
-            PinnedBoardManager.toggle(mFirebaseRef.child("boardsegments"), mBoardId);
-            item.setChecked(PinnedBoardManager.isPinned(mBoardId));
+            SyncedBoardManager.toggle(mFirebaseRef.child("boardsegments"), mBoardId);
+            item.setChecked(SyncedBoardManager.isSynced(mBoardId));
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -159,7 +157,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         final Canvas buffer = new Canvas(b);
 
         buffer.drawRect(0, 0, b.getWidth(), b.getHeight(), DrawingView.paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
-        Log.i("AndroidDrawing", "Generating thumbnail of " + b.getWidth() + "x" + b.getHeight());
+        Log.i(TAG, "Generating thumbnail of " + b.getWidth() + "x" + b.getHeight());
 
         segmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
