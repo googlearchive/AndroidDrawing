@@ -10,7 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by puf on 5/17/15.
+ * This static class handles the sync-state of the boards. Any changes to synced boards are automatically
+ * downloaded when the application is active, even when the user is not looking at that board.
+ *
+ * Whether a board is synced on this device is kept in SharedPreferences on the device itself, since
+ * each user can have their own preference for what board(s) to keep synced.
  */
 public class SyncedBoardManager {
     public static final String PREFS_NAME = "DoodleBoardPrefs";
