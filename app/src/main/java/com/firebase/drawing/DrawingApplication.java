@@ -14,7 +14,7 @@ public class DrawingApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Firebase.setAndroidContext(this);
-        Firebase.getDefaultConfig().enablePersistence();
+        Firebase.getDefaultConfig().setPersistenceEnabled(true);
         //Firebase.getDefaultConfig().setLogLevel(Logger.Level.DEBUG);
         SyncedBoardManager.setContext(this);
     }

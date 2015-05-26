@@ -32,7 +32,7 @@ public class SyncedBoardManager {
         Set<String> syncedBoards = preferences.getStringSet(PREF_NAME, new HashSet<String>());
         for (String key: syncedBoards) {
             Log.i(TAG, "Keeping board "+key+" synced");
-            boardsRef.child(key).pin();
+            boardsRef.child(key).keepSynced(true);
         }
     }
 
@@ -47,11 +47,11 @@ public class SyncedBoardManager {
         Set<String> syncedBoards = new HashSet<>(preferences.getStringSet(PREF_NAME, new HashSet<String>()));
         if (syncedBoards.contains(boardId)) {
             syncedBoards.remove(boardId);
-            boardsRef.child(boardId).unpin();
+            boardsRef.child(boardId).keepSynced(false);
         }
         else {
             syncedBoards.add(boardId);
-            boardsRef.child(boardId).pin();
+            boardsRef.child(boardId).keepSynced(true);
         }
         preferences.edit().putStringSet(PREF_NAME, syncedBoards).commit();
         Log.i(TAG, "Board " + boardId + " is now " + (syncedBoards.contains(boardId) ? "" : "not ") + "synced");
