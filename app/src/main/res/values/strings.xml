@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Firebase Drawing</string>
+    <string name="app_name">Firebase Doodling</string>
+    <string name="title_activity_board_list">BoardListActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_new_board">New board</string>
 </resources>

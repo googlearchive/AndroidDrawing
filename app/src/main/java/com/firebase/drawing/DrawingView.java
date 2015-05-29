@@ -3,27 +3,30 @@ package com.firebase.drawing;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Logger;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author greg
- * @since 6/26/13
- */
 public class DrawingView extends View {
 
-    private static final int PIXEL_SIZE = 8;
+    public static final int PIXEL_SIZE = 8;
 
     private Paint mPaint;
     private int mLastX;
@@ -37,14 +40,26 @@ public class DrawingView extends View {
     private Path mPath;
     private Set<String> mOutstandingSegments;
     private Segment mCurrentSegment;
-    private Path mChildPath = new Path();
+    private float mScale = 1.0f;
+    private int mCanvasWidth;
+    private int mCanvasHeight;
 
     public DrawingView(Context context, Firebase ref) {
+        this(context, ref, 1.0f);
+    }
+    public DrawingView(Context context, Firebase ref, int width, int height) {
+        this(context, ref);
+        this.setBackgroundColor(Color.DKGRAY);
+        mCanvasWidth = width;
+        mCanvasHeight = height;
+    }
+    public DrawingView(Context context, Firebase ref, float scale) {
         super(context);
 
         mOutstandingSegments = new HashSet<String>();
         mPath = new Path();
         this.mFirebaseRef = ref;
+        this.mScale = scale;
 
         mListener = ref.addChildEventListener(new ChildEventListener() {
             /**
@@ -105,47 +120,73 @@ public class DrawingView extends View {
         mPaint.setColor(color);
     }
 
+    public void clear() {
+        mBitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        mBuffer = new Canvas(mBitmap);
+        mCurrentSegment = null;
+        mOutstandingSegments.clear();
+        invalidate();
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldW, int oldH) {
         super.onSizeChanged(w, h, oldW, oldH);
 
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mScale = Math.min(1.0f * w / mCanvasWidth, 1.0f * h / mCanvasHeight);
+
+        mBitmap = Bitmap.createBitmap(Math.round(mCanvasWidth * mScale), Math.round(mCanvasHeight * mScale), Bitmap.Config.ARGB_8888);
         mBuffer = new Canvas(mBitmap);
+        Log.i("AndroidDrawing", "onSizeChanged: created bitmap/buffer of "+mBitmap.getWidth()+"x"+mBitmap.getHeight());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawColor(0xFFFFFFFF);
+        canvas.drawColor(Color.DKGRAY);
+        canvas.drawRect(0, 0, mBitmap.getWidth(), mBitmap.getHeight(), paintFromColor(Color.WHITE, Paint.Style.FILL_AND_STROKE));
 
         canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
         canvas.drawPath(mPath, mPaint);
     }
 
-    private Paint paintFromColor(int color) {
+    public static Paint paintFromColor(int color) {
+        return paintFromColor(color, Paint.Style.STROKE);
+    }
+
+    public static Paint paintFromColor(int color, Paint.Style style) {
         Paint p = new Paint();
         p.setAntiAlias(true);
         p.setDither(true);
         p.setColor(color);
-        p.setStyle(Paint.Style.STROKE);
+        p.setStyle(style);
         return p;
     }
 
-    private void drawSegment(Segment segment, Paint paint) {
-        mChildPath.reset();
-        List<Point> points = segment.getPoints();
+    public static Path getPathForPoints(List<Point> points, double scale) {
+        Path path = new Path();
+        scale = scale * PIXEL_SIZE;
         Point current = points.get(0);
-        mChildPath.moveTo(current.x * PIXEL_SIZE, current.y * PIXEL_SIZE);
+        path.moveTo(Math.round(scale * current.x), Math.round(scale * current.y));
         Point next = null;
         for (int i = 1; i < points.size(); ++i) {
             next = points.get(i);
-            mChildPath.quadTo(current.x * PIXEL_SIZE, current.y * PIXEL_SIZE, ((next.x + current.x) * PIXEL_SIZE) / 2, ((next.y + current.y) * PIXEL_SIZE) / 2);
+            path.quadTo(
+                    Math.round(scale * current.x), Math.round(scale * current.y),
+                    Math.round(scale * (next.x + current.x) / 2), Math.round(scale * (next.y + current.y) / 2)
+            );
             current = next;
         }
         if (next != null) {
-            mChildPath.lineTo(next.x * PIXEL_SIZE, next.y * PIXEL_SIZE);
+            path.lineTo(Math.round(scale * next.x), Math.round(scale * next.y));
         }
-        mBuffer.drawPath(mChildPath, paint);
+        return path;
+    }
+
+
+    private void drawSegment(Segment segment, Paint paint) {
+        if (mBuffer != null) {
+            mBuffer.drawPath(getPathForPoints(segment.getPoints(), mScale), paint);
+        }
     }
 
     private void onTouchStart(float x, float y) {
@@ -179,13 +220,24 @@ public class DrawingView extends View {
         Firebase segmentRef = mFirebaseRef.push();
         final String segmentName = segmentRef.getKey();
         mOutstandingSegments.add(segmentName);
+
+        // create a scaled version of the segment, so that it matches the size of the board
+        Segment segment = new Segment(mCurrentSegment.getColor());
+        for (Point point: mCurrentSegment.getPoints()) {
+            segment.addPoint((int)Math.round(point.x / mScale), (int)Math.round(point.y / mScale));
+        }
+
         // Save our segment into Firebase. This will let other clients see the data and add it to their own canvases.
         // Also make a note of the outstanding segment name so we don't do a duplicate draw in our onChildAdded callback.
         // We can remove the name from mOutstandingSegments once the completion listener is triggered, since we will have
         // received the child added event by then.
-        segmentRef.setValue(mCurrentSegment, new Firebase.CompletionListener() {
+        segmentRef.setValue(segment, new Firebase.CompletionListener() {
             @Override
             public void onComplete(FirebaseError error, Firebase firebaseRef) {
+                if (error != null) {
+                    Log.e("AndroidDrawing", error.toString());
+                    throw error.toException();
+                }
                 mOutstandingSegments.remove(segmentName);
             }
         });
