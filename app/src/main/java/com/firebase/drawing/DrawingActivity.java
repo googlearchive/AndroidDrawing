@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Toast;
 import android.support.v7.app.ActionBarActivity;
 
@@ -56,12 +57,19 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         mMetadataRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (mDrawingView != null) {
+                    ((ViewGroup) mDrawingView.getParent()).removeView(mDrawingView);
+                    mDrawingView.cleanup();
+                    mDrawingView = null;
+                }
                 Map<String, Object> boardValues = (Map<String, Object>) dataSnapshot.getValue();
-                mBoardWidth = ((Long) boardValues.get("width")).intValue();
-                mBoardHeight = ((Long) boardValues.get("height")).intValue();
+                if (boardValues != null && boardValues.get("width") != null && boardValues.get("height") != null) {
+                    mBoardWidth = ((Long) boardValues.get("width")).intValue();
+                    mBoardHeight = ((Long) boardValues.get("height")).intValue();
 
-                mDrawingView = new DrawingView(DrawingActivity.this, mFirebaseRef.child("boardsegments").child(boardId), mBoardWidth, mBoardHeight);
-                setContentView(mDrawingView);
+                    mDrawingView = new DrawingView(DrawingActivity.this, mFirebaseRef.child("boardsegments").child(boardId), mBoardWidth, mBoardHeight);
+                    setContentView(mDrawingView);
+                }
             }
 
             @Override
@@ -98,7 +106,9 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
         super.onStop();
         // Clean up our listener so we don't have it attached twice.
         mFirebaseRef.getRoot().child(".info/connected").removeEventListener(mConnectedListener);
-        mDrawingView.cleanup();
+        if (mDrawingView != null) {
+            mDrawingView.cleanup();
+        }
         this.updateThumbnail(mBoardWidth, mBoardHeight, mSegmentsRef, mMetadataRef);
     }
 
@@ -174,7 +184,7 @@ public class DrawingActivity extends ActionBarActivity implements ColorPickerDia
                     @Override
                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
                         if (firebaseError != null) {
-                            throw firebaseError.toException();
+                            Log.e(TAG, "Error updating thumbnail", firebaseError.toException());
                         }
                     }
                 });

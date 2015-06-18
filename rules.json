@@ -1,0 +1,56 @@
+{
+    "rules": {
+        ".read": true,
+        ".write": true,
+        "boardmetas": {
+          "$boardid": {
+            ".validate": "newData.hasChildren(['createdAt', 'width', 'height'])",
+            "createdAt": {
+              // is a number after 20150101 and before now
+              ".validate": "newData.isNumber() && newData.val() > 1420099200000 && newData.val() <= now"
+            },
+            "width": {
+              ".validate": "newData.isNumber()"
+            },
+            "height": {
+              ".validate": "newData.isNumber()"
+            },
+            "thumbnail": {
+              // A thumbnail is allowed, but not required
+              ".validate": "newData.isString()"
+            },
+            "$others": {
+              // disallow any other children
+              ".validate": false
+            }
+          }
+        },
+        "boardsegments": {
+          "$boardid": {
+            "$segmentid": {
+              ".validate": "newData.hasChildren(['color', 'points'])",
+              // TODO: validate that color is within range -2147483648 - 2147483647
+              "points": {
+                "$point": {
+                  ".validate": "newData.hasChildren(['x', 'y'])",
+                  // validate that x and y are numeric and within the boards width and height
+                  "x": {
+                    ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < root.child('boardmetas').child($boardid).child('width').val()"
+                  },
+                  "y": {
+                    ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() < root.child('boardmetas').child($boardid).child('height').val()"
+                  },
+                  "$other": {
+                    ".validate": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "$others": {
+          // disallow any other children
+          ".validate": false
+        }
+    }
+}
