@@ -1,3 +1,7 @@
+# This is a legacy Firebase example (for SDK 2.x.x). You probably want one of the [up-to-date examples](https://firebase.google.com/docs/samples).
+
+---------------------
+
 # Firebase Drawing for Android
 
 This Android application demonstrates the use of the Firebase SDK to create a shared drawing canvas.
@@ -32,4 +36,3 @@ section](https://www.firebase.com/docs/android/guide/offline-capabilities.html) 
 
 You can do lots more with Firebase on Android. Check out our Android
 [Quickstart guide](https://www.firebase.com/docs/java-quickstart.html) to learn more.
-
