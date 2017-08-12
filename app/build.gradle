@@ -7,13 +7,13 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
-    compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "com.firebase.drawing"
         minSdkVersion 19
-        targetSdkVersion 21
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
     }
